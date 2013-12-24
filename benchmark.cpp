@@ -5,6 +5,7 @@
 #include <vector>
 
 #define NUM_VALS 100000
+#define NUM_RUNS 5
 
 typedef size_t join_single_key_t;
 typedef size_t pos_t;
@@ -91,17 +92,41 @@ size_t runWithCopyFirstReserve() {
   return (t1-t0).count();
 }
 
+size_t runWithReuseMapAndReserve() {
+  hmap_t mmup, mmup2;
+  fillHashMaps(mmup, mmup2);
+
+  auto t0 = std::chrono::high_resolution_clock::now();
+
+  mmup.reserve(mmup.size() + mmup2.size());
+  mmup.insert(mmup2.begin(), mmup2.end());
+
+  auto t1 = std::chrono::high_resolution_clock::now();
+
+  return (t1-t0).count();
+
+}
+
+size_t runNTimes(size_t (*fun)(), size_t numRuns=NUM_RUNS) {
+  size_t sum = 0;
+  for (size_t i = 0; i < numRuns; ++i) {
+    sum += fun();
+  }
+  return sum/numRuns;
+}
 
 
 int main() {
 
-  auto time1 = runWithFreshMap();
-  auto time2 = runWithReuseMap();
-  auto time3 = runWithReserveOnEmptyMap();
-  auto time4 = runWithCopyFirstReserve();
+  auto time1 = runNTimes(runWithFreshMap);
+  auto time2 = runNTimes(runWithReuseMap);
+  auto time3 = runNTimes(runWithReserveOnEmptyMap);
+  auto time4 = runNTimes(runWithCopyFirstReserve);
+  auto time5 = runNTimes(runWithReuseMapAndReserve);
   std::cout << "Second method speed increase over first: " << 1 / (time2/ (float) time1) << std::endl;
   std::cout << "Third method speed increase over first: " << 1 / (time3/ (float) time1) << std::endl;
   std::cout << "Fourth method speed increase over first: " << 1 / (time4/ (float) time1) << std::endl;
+  std::cout << "Fifth method speed increase over first: " << 1 / (time5/ (float) time1) << std::endl;
 
   return 0;
 }
