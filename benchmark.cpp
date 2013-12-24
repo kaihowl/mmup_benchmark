@@ -75,6 +75,22 @@ size_t runWithReserveOnEmptyMap() {
   return (t1-t0).count();
 }
 
+size_t runWithCopyFirstReserve() {
+  hmap_t mmup, mmup2, freshMap;
+
+  fillHashMaps(mmup, mmup2);
+
+  auto t0 = std::chrono::high_resolution_clock::now();
+
+  freshMap = mmup;
+  freshMap.reserve(freshMap.size() + mmup2.size());
+  freshMap.insert(mmup2.begin(), mmup2.end());
+
+  auto t1 = std::chrono::high_resolution_clock::now();
+
+  return (t1-t0).count();
+}
+
 
 
 int main() {
@@ -82,8 +98,10 @@ int main() {
   auto time1 = runWithFreshMap();
   auto time2 = runWithReuseMap();
   auto time3 = runWithReserveOnEmptyMap();
+  auto time4 = runWithCopyFirstReserve();
   std::cout << "Second method speed increase over first: " << 1 / (time2/ (float) time1) << std::endl;
   std::cout << "Third method speed increase over first: " << 1 / (time3/ (float) time1) << std::endl;
+  std::cout << "Fourth method speed increase over first: " << 1 / (time4/ (float) time1) << std::endl;
 
   return 0;
 }
