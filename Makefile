@@ -1,5 +1,5 @@
 main:
-	g++ -std=c++11 -o "benchmark" benchmark.cpp
+	g++ -std=c++11 -g -o "benchmark" benchmark.cpp
 
 clean:
 	rm -rf benchmark *.o
